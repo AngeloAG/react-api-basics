@@ -11,84 +11,92 @@ const DefinePlugin = require('webpack/lib/DefinePlugin');
 const HotModuleReplacementPlugin = require('webpack/lib/HotModuleReplacementPlugin');
 
 module.exports = webpackMerge(webpackCommon, {
-
-  devtool: 'inline-source-map',
-  mode: 'development',
+  devtool: "inline-source-map",
+  mode: "development",
   output: {
-  
-    path: path.resolve(__dirname, '../static/dist'),
+    path: path.resolve(__dirname, "../static/dist"),
 
-    filename: '[name].js',
+    filename: "[name].js",
 
-    sourceMapFilename: '[name].map',
+    sourceMapFilename: "[name].map",
 
-    chunkFilename: '[id]-chunk.js',
+    chunkFilename: "[id]-chunk.js",
 
-    publicPath: '/'
-
+    publicPath: "/",
   },
 
   module: {
-
     rules: [
       {
         test: /\.s?css$/,
         use: [
           {
-            loader: 'style-loader'
+            loader: "style-loader",
           },
           {
-            loader: 'css-loader',
+            loader: "css-loader",
             options: {
-              importLoaders: 2
-            }
+              importLoaders: 2,
+            },
           },
           {
-            loader: 'sass-loader',
+            loader: "sass-loader",
             options: {
-              outputStyle: 'expanded',
               sourceMap: true,
-              sourceMapContents: true
-            }
-          }
-        ]
-      }
-    ]
-
+              sassOptions: {
+                outputStyle: "expanded"
+              }
+            },
+          },
+        ],
+      },
+    ],
   },
 
   plugins: [
     new DefinePlugin({
-      'process.env': {
-        NODE_ENV: "'development'"
-      }
+      'process.env.NODE_ENV': JSON.stringify('development'),
     }),
     new HtmlWebpackPlugin({
       inject: true,
-      template: path.resolve(__dirname, '../static/index.html'),
-      favicon: path.resolve(__dirname, '../static/favicon.ico')
+      template: path.resolve(__dirname, "../static/index.html"),
+      favicon: path.resolve(__dirname, "../static/favicon.ico"),
     }),
-    new HotModuleReplacementPlugin()
+    new HotModuleReplacementPlugin(),
   ],
 
   devServer: {
-    host: env.devServer.host || 'localhost',
+    host: env.devServer.host || "localhost",
     port: env.devServer.port || 3000,
-    contentBase: path.resolve(__dirname, '../static'),
-    watchContentBase: true,
+    static: {
+      directory: path.resolve(__dirname, "../static"),
+    },
     compress: true,
     hot: true,
     historyApiFallback: {
-      disableDotRule: true
+      disableDotRule: true,
     },
-    watchOptions: {
-      ignored: /node_modules/
-    },
-    overlay: {
-      warnings: true,
-      errors: true
-    },
-    proxy: proxyRules
-  }
-
+    proxy: [
+      {
+        context: ["/node-0"],
+        target: "https://api.github.com",
+        secure: true,
+        headers: {
+          Host: "api.github.com",
+          Cookie: "",
+        },
+        pathRewrite: { "^/node-0": "" },
+      },
+      {
+        context: ["/node-1"],
+        target: "https://registry.npmjs.org",
+        secure: true,
+        headers: {
+          Host: "registry.npmjs.org",
+          Cookie: "",
+        },
+        pathRewrite: { "^/node-1": "" },
+      },
+    ],
+  },
 });
