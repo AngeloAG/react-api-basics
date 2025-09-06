@@ -1,5 +1,6 @@
 // webpack plugins
 const SplitChunksPlugin = require("webpack/lib/optimize/SplitChunksPlugin");
+const Dotenv = require("dotenv-webpack");
 
 module.exports = {
   entry: {
@@ -49,7 +50,7 @@ module.exports = {
         test: /\.(mp4|webm)$/,
         loader: "url-loader",
         options: {
-          limit: 10000
+          limit: 10000,
         },
       },
     ],
@@ -60,5 +61,6 @@ module.exports = {
       name: ["app", "vendor"],
       minChunks: Infinity,
     }),
+    new Dotenv(),
   ],
 };
